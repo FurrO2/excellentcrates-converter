@@ -110,8 +110,14 @@ def convert_reward(old_id: str, old: dict[str, Any], crate_id: str, report: list
     if limits.get("Enabled") and (limits.get("GlobalCooldown", 0) or limits.get("PlayerCooldown", 0)):
         report.append(f"{crate_id}/{old_id}: limit cooldown periods need manual review.")
     if kind == "COMMAND":
-        converted["commands"] = {"enabled": True, "give_mode": "NORMAL", "iterations": 1}
-        converted["commands"]["command_list"] = old.get("Commands") or []
+        bundle_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{crate_id}/{reward_id}/command_bundle"))
+        converted["commands"] = {
+            "enabled": True,
+            "give_mode": "NORMAL",
+            "iterations": 1,
+            "command_list": old.get("Commands") or [],
+            "bundles": {bundle_id: {"commands": [], "weight": 0.0}},
+        }
     elif kind == "ITEM":
         converted["items"] = {"item_list": {}}
         raw_items = old.get("ItemsData") or {}
