@@ -1,19 +1,35 @@
 ﻿# ExcellentCrates Legacy Converter
 
-Convertisseur local pour migrer les fichiers YAML de l'ancien plugin ExcellentCrates vers la structure d'objets de la nouvelle version.
+Application Windows pour convertir les anciennes configurations YAML du plugin ExcellentCrates vers le format d'objets de la v7.
 
 Ce projet est indépendant et n'est pas affilié aux développeurs d'ExcellentCrates.
 
-## Utilisation
+## Utiliser l'application Windows
+
+Téléchargez `ExcellentCrates-Converter.exe` depuis la section [Releases](https://github.com/FurrO2/excellentcrates-converter/releases) et ouvrez-le. Python n'est pas nécessaire.
+
+1. À gauche, choisissez l'archive ZIP complète de l'ancien plugin ou son dossier racine contenant `crates/` et `keys/`.
+2. À droite, choisissez l'emplacement du dossier converti.
+3. Cliquez sur **Convertir vers v7**.
+4. Copiez le contenu de `objects/` dans le dossier `objects/` de votre installation ExcellentCrates v7, généralement `plugins/ExcellentCrates/objects/`. Gardez la structure des sous-dossiers.
+5. Consultez `conversion-report.json`, redémarrez le serveur et vérifiez les caisses en jeu.
+
+Faites une sauvegarde des fichiers v7 avant de les remplacer. Le dossier de destination doit être vide; l'application ne remplace pas les données existantes.
+
+## Lancer depuis les sources
 
 Prérequis : Python 3.10 ou plus récent.
 
 ```powershell
 py -m pip install -r requirements.txt
-py src\converter.py "C:\chemin\ExcellentCrates-old.zip"
+py src\gui.py
 ```
 
-Le programme crée `excellentcrates [converted]` dans le dossier courant. Un second argument permet de choisir la destination. Celle-ci doit être vide pour éviter tout écrasement. Sous Windows, `convert.bat` peut aussi être lancé avec les mêmes arguments.
+Pour l'utilisation en ligne de commande :
+
+```powershell
+py src\converter.py "C:\chemin\ExcellentCrates-old.zip"
+```
 
 Pour associer un ancien monde à un identifiant précis :
 
@@ -21,7 +37,7 @@ Pour associer un ancien monde à un identifiant précis :
 py src\converter.py "C:\chemin\ExcellentCrates-old.zip" "excellentcrates [converted]" --world-map survie5=minecraft:monde1
 ```
 
-Le format de sortie comprend `objects/key/`, `objects/reward/<crate_id>/` et `objects/crate/`, ainsi qu'un manifeste et un rapport de conversion. L'ordre conseillé dans le manifeste est clés, récompenses, puis caisses.
+Le binaire Windows est construit automatiquement par GitHub Actions. Un tag `v*` publie l'exécutable dans une nouvelle release.
 
 ## Données prises en charge
 
@@ -37,7 +53,7 @@ Le fichier `conversion-report.json` répertorie les adaptations ou vérification
 
 ## Limites
 
-Les bases `data.db`, menus personnalisés, langues, configurations globales, logs, coûts en monnaie et certaines permissions avancées ne sont pas migrés. Les structures de jalons et les données NBT d'objets peuvent varier selon la version d'ExcellentCrates, Minecraft ou les extensions installées. Vérifiez les fichiers générés sur un serveur de test avant utilisation.
+Les bases `data.db`, menus personnalisés, langues, configurations globales, logs, coûts en monnaie et certaines permissions avancées ne sont pas migrés. Les structures de jalons et les données NBT d'objets peuvent varier selon la version d'ExcellentCrates, Minecraft ou les extensions installées. Vérifiez les fichiers générés en jeu avant utilisation.
 
 ## Contributions
 
