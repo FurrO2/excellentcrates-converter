@@ -115,8 +115,7 @@ def convert_reward(old_id: str, old: dict[str, Any], crate_id: str, report: list
             "enabled": True,
             "give_mode": "NORMAL",
             "iterations": 1,
-            "command_list": old.get("Commands") or [],
-            "bundles": {bundle_id: {"commands": [], "weight": 0.0}},
+            "bundles": {bundle_id: {"commands": old.get("Commands") or [], "weight": 0.0}},
         }
     elif kind == "ITEM":
         converted["items"] = {"item_list": {}}
