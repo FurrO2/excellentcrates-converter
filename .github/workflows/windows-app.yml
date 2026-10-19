@@ -26,3 +26,8 @@ jobs:
         with:
           name: ExcellentCrates-Converter-Windows
           path: dist/ExcellentCrates-Converter.exe
+      - name: Publish release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/ExcellentCrates-Converter.exe
