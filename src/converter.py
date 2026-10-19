@@ -39,7 +39,7 @@ def load_yaml(path: Path) -> dict[str, Any]:
     if data is None:
         return {}
     if not isinstance(data, dict):
-        raise ValueError("Le document YAML doit contenir un objet à sa racine")
+        raise ValueError("The YAML document must contain an object at its root")
     return data
 
 
@@ -105,10 +105,10 @@ def convert_reward(old_id: str, old: dict[str, Any], crate_id: str, report: list
     req = old.get("Required_Permissions") or []
     ignored = old.get("Ignored_For_Permissions") or []
     if req or ignored:
-        report.append(f"{crate_id}/{old_id}: les permissions des récompenses nécessitent une vérification manuelle.")
+        report.append(f"{crate_id}/{old_id}: reward permissions need manual review.")
     limits = old.get("Limits") or {}
     if limits.get("Enabled") and (limits.get("GlobalCooldown", 0) or limits.get("PlayerCooldown", 0)):
-        report.append(f"{crate_id}/{old_id}: les périodes de cooldown des limites doivent être vérifiées manuellement.")
+        report.append(f"{crate_id}/{old_id}: limit cooldown periods need manual review.")
     if kind == "COMMAND":
         converted["commands"] = {"enabled": True, "give_mode": "NORMAL", "iterations": 1}
         converted["commands"]["command_list"] = old.get("Commands") or []
@@ -128,13 +128,13 @@ def convert_reward(old_id: str, old: dict[str, Any], crate_id: str, report: list
         if first_reward_item:
             converted["preview"]["icon"] = first_reward_item
         if not converted["items"]["item_list"]:
-            report.append(f"{crate_id}/{old_id}: récompense ITEM sans ItemsData exploitable.")
+            report.append(f"{crate_id}/{old_id}: ITEM reward has no usable ItemsData.")
     else:
-        report.append(f"{crate_id}/{old_id}: type de récompense {kind or '(absent)'} non pris en charge.")
+        report.append(f"{crate_id}/{old_id}: reward type {kind or '(missing)'} is not supported.")
     if "icon" not in converted["preview"] and preview:
         converted["preview"]["icon"] = new_item(preview, (old.get("PreviewData") or {}).get("Provider", "vanilla"))
     if old.get("Custom_Preview") or old.get("Placeholder_Apply"):
-        report.append(f"{crate_id}/{old_id}: options Custom_Preview/Placeholder_Apply à contrôler manuellement.")
+        report.append(f"{crate_id}/{old_id}: review Custom_Preview/Placeholder_Apply options manually.")
     return reward_id, converted
 
 
@@ -145,7 +145,7 @@ def dimension_for_world(world_name: str, world_map: dict[str, str]) -> str:
     if raw_world.startswith("minecraft:"):
         return raw_world
     # In the v7 files supplied by the user, the namespaced key identifies the
-    # server world (for example minecraft:monde1), not a dimension category.
+    # server world (for example minecraft:world1), not a dimension category.
     return f"minecraft:{slug(world_name)}"
 
 
@@ -158,12 +158,12 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
     template = templates.get(template_id) or templates.get(slug(template_id)) or {}
     hologram_text = template.get("Text") if isinstance(template, dict) else None
     if hologram.get("Enabled") and not hologram_text:
-        report.append(f"{crate_id}: modèle d'hologramme {template_id!r} introuvable dans config.yml; texte par défaut conservé.")
+        report.append(f"{crate_id}: hologram template {template_id!r} was not found in config.yml; default text was kept.")
     old_animation = old.get("Animation") or {}
     old_animation_id = str(old_animation.get("Id", "default")).strip().lower()
     animation_profile = "csgo_animation:default" if old_animation_id in {"csgo", "csgo_auto"} else "simple_roll:default"
     if old_animation.get("Enabled") and old_animation_id not in {"", "default", "simple_roll", "csgo", "csgo_auto"}:
-        report.append(f"{crate_id}: animation ancienne {old_animation_id!r} remplacée par le profil v7 {animation_profile}.")
+        report.append(f"{crate_id}: legacy animation {old_animation_id!r} was replaced with v7 profile {animation_profile}.")
     out: dict[str, Any] = {
         "base": {"permission_required": bool(old.get("Permission_Required", False))},
         "display": {"name": old.get("Name", crate_id), "lore": old.get("Description") or []},
@@ -184,14 +184,14 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
     for legacy_position in legacy_positions:
         parts = [part.strip() for part in str(legacy_position).split(",")]
         if len(parts) < 4:
-            report.append(f"{crate_id}: position de bloc illisible ({legacy_position!r}); elle reste à placer en jeu.")
+            report.append(f"{crate_id}: could not read block position ({legacy_position!r}); place it in-game.")
             continue
         x, y, z, legacy_world = parts[:4]
         world_key = dimension_for_world(legacy_world, world_map)
         try:
             coords = [str(float(value)) for value in (x, y, z)]
         except ValueError:
-            report.append(f"{crate_id}: coordonnées de bloc invalides ({legacy_position!r}); elles restent à placer en jeu.")
+            report.append(f"{crate_id}: invalid block coordinates ({legacy_position!r}); place them in-game.")
             continue
         converted_positions.setdefault(world_key, []).append(",".join(coords + ["0.0", "0.0"]))
     if converted_positions:
@@ -212,9 +212,9 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
                 unsupported_costs.append(str(entry.get("Type", "inconnu")))
     out["key_requirements"] = {"enabled": bool(key_requirements), "keys": key_requirements}
     if unsupported_costs:
-        report.append(f"{crate_id}: coûts autres que les clés ({', '.join(sorted(set(unsupported_costs)))}) non convertis.")
+        report.append(f"{crate_id}: costs other than keys ({', '.join(sorted(set(unsupported_costs)))}) were not converted.")
     if (old.get("Block") or {}).get("Pushback", {}).get("Enabled"):
-        report.append(f"{crate_id}: vérifier le comportement Pushback de l'ancienne caisse.")
+        report.append(f"{crate_id}: review the legacy crate's Pushback behavior.")
     rewards = ((old.get("Rewards") or {}).get("List") or {})
     reward_id_map = {str(old_reward_id): slug(old_reward_id) for old_reward_id in rewards}
     seen: set[str] = set()
@@ -226,7 +226,7 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
             new_id = f"{original}_{n}"; n += 1
         seen.add(new_id)
         if new_id != original:
-            report.append(f"{crate_id}: collision d'identifiants après normalisation de {old_reward_id!r}; renommé {new_id}.")
+            report.append(f"{crate_id}: ID collision after normalizing {old_reward_id!r}; renamed to {new_id}.")
         write_yaml(output / "objects" / "reward" / crate_id / f"{new_id}.yml", new_reward)
         out["rewards"]["reward_list"][str(uuid.uuid5(uuid.NAMESPACE_URL, f"{crate_id}/{new_id}"))] = {"reward_id": new_id}
     legacy_milestones = old.get("Milestones") or {}
@@ -235,7 +235,7 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
         converted_milestones: dict[str, Any] = {}
         for old_index, milestone in milestone_entries.items():
             if not isinstance(milestone, dict):
-                report.append(f"{crate_id}: jalon {old_index!r} illisible; vérifier la conversion.")
+                report.append(f"{crate_id}: could not read milestone {old_index!r}; review the conversion.")
                 continue
             old_reward_id = str(milestone.get("Reward_Id", ""))
             new_reward_id = reward_id_map.get(old_reward_id, slug(old_reward_id))
@@ -244,7 +244,7 @@ def convert_crate(old: dict[str, Any], crate_id: str, output: Path, report: list
             except (TypeError, ValueError):
                 openings = 0
             if old_reward_id and old_reward_id not in reward_id_map:
-                report.append(f"{crate_id}: le jalon {openings} référence la récompense absente {old_reward_id!r}; vérifier reward_id: {new_reward_id}.")
+                report.append(f"{crate_id}: milestone {openings} references missing reward {old_reward_id!r}; review reward_id: {new_reward_id}.")
             milestone_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{crate_id}/milestone/{openings}/{new_reward_id}"))
             converted_milestones[milestone_uuid] = {"reward_id": new_reward_id, "openings": openings}
         out["milestones"] = {
@@ -259,7 +259,7 @@ def source_from_archive(source: Path, temp: Path) -> Path:
     if source.is_dir():
         return source
     if source.suffix.lower() != ".zip":
-        raise ValueError("La source doit être un dossier ExcellentCrates ou une archive .zip")
+        raise ValueError("The source must be an ExcellentCrates folder or a .zip archive")
     temp.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(source) as archive:
         for member in archive.infolist():
@@ -279,7 +279,7 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
     legacy_config = load_yaml(legacy_config_path) if legacy_config_path.is_file() else {}
     crates_dir, keys_dir = source / "crates", source / "keys"
     if not crates_dir.is_dir() and not keys_dir.is_dir():
-        raise ValueError("Aucun dossier crates/ ou keys/ trouvé dans la source")
+        raise ValueError("No crates/ or keys/ folder was found in the source")
     destination.mkdir(parents=True, exist_ok=True)
     report: list[str] = []
     world_map = world_map or {}
@@ -294,7 +294,7 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
             suffix += 1
         used_crate_ids.add(crate_id)
         if crate_id != base_id:
-            report.append(f"{path.name}: collision d'identifiants après normalisation; caisse renommée {crate_id}.")
+            report.append(f"{path.name}: ID collision after normalization; crate renamed to {crate_id}.")
         try:
             convert_crate(load_yaml(path), crate_id, destination, report, world_map, legacy_config)
             converted_crates += 1
@@ -310,7 +310,7 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
             suffix += 1
         used_key_ids.add(key_id)
         if key_id != base_id:
-            report.append(f"{path.name}: collision d'identifiants après normalisation; clé renommée {key_id}.")
+            report.append(f"{path.name}: ID collision after normalization; key renamed to {key_id}.")
         try:
             converted = convert_key(load_yaml(path))
             write_yaml(destination / "objects" / "key" / f"{key_id}.yml", converted)
@@ -318,9 +318,9 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
         except Exception as exc:
             report.append(f"{path.name}: erreur de lecture/conversion: {exc}")
     report.extend([
-        "data.db n'est pas modifiée ni migrée par cet outil.",
-        "Les fichiers config, langue, menus, animations personnalisées et historiques ne sont pas migrés.",
-        "Vérifiez les caisses/récompenses converties en jeu avant d'utiliser les fichiers sur un serveur.",
+        "data.db is not modified or migrated by this tool.",
+        "Config, language, menus, custom animations, and history files are not migrated.",
+        "Check converted crates and rewards in-game before using these files on a server.",
     ])
     result = {
         "output_folder": destination.name,
@@ -335,7 +335,7 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
         "load_order": ["objects/key/", "objects/reward/", "objects/crate/"],
         "crates": sorted(p.stem for p in (destination / "objects" / "crate").glob("*.yml")),
         "keys": sorted(p.stem for p in (destination / "objects" / "key").glob("*.yml")),
-        "note": "Les rewards sont référencées par les crates; les jalons pointent vers ces mêmes reward_id.",
+        "note": "Rewards are referenced by crates; milestones point to those same reward IDs.",
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     if source_arg.is_file() and temp.exists():
         shutil.rmtree(temp)
@@ -343,27 +343,27 @@ def convert(source_arg: Path, destination: Path, world_map: dict[str, str] | Non
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Convertit les configurations YAML ExcellentCrates legacy vers la structure v7.")
-    parser.add_argument("source", type=Path, help="Dossier plugin ExcellentCrates ou archive ZIP")
-    parser.add_argument("destination", type=Path, nargs="?", default=Path("excellentcrates [converted]"), help="Dossier de sortie (défaut: excellentcrates [converted])")
-    parser.add_argument("--world-map", action="append", default=[], metavar="ANCIEN=NOUVEAU", help="Associe un ancien nom de monde à un identifiant cible, par exemple survie5=minecraft:overworld")
+    parser = argparse.ArgumentParser(description="Convert legacy ExcellentCrates YAML configurations to the v7 structure.")
+    parser.add_argument("source", type=Path, help="ExcellentCrates plugin folder or ZIP archive")
+    parser.add_argument("destination", type=Path, nargs="?", default=Path("excellentcrates [converted]"), help="Output folder (default: excellentcrates [converted])")
+    parser.add_argument("--world-map", action="append", default=[], metavar="OLD=NEW", help="Map a legacy world name to a target identifier, e.g. survival=minecraft:overworld")
     args = parser.parse_args()
     if args.destination.exists() and any(args.destination.iterdir()):
-        parser.error("Le dossier destination doit être vide pour éviter tout écrasement")
+        parser.error("The destination folder must be empty to avoid overwriting files")
     try:
         world_map = {}
         for mapping in args.world_map:
             if "=" not in mapping:
-                parser.error(f"Association de monde invalide: {mapping}")
+                parser.error(f"Invalid world mapping: {mapping}")
             old_world, new_world = mapping.split("=", 1)
             world_map[old_world] = new_world
         result = convert(args.source, args.destination, world_map)
     except Exception as exc:
-        print(f"Erreur: {exc}", file=sys.stderr)
+        print(f"Error: {exc}", file=sys.stderr)
         return 2
-    print(f"Conversion terminée: {result['crates_converted']} caisses, {result['keys_converted']} clés.")
-    print(f"Rapport: {args.destination / 'conversion-report.json'}")
-    print(f"Avertissements: {len(result['warnings'])}")
+    print(f"Conversion complete: {result['crates_converted']} crates, {result['keys_converted']} keys.")
+    print(f"Report: {args.destination / 'conversion-report.json'}")
+    print(f"Warnings: {len(result['warnings'])}")
     return 0
 
 

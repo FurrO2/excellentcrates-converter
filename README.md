@@ -1,64 +1,62 @@
-﻿# ExcellentCrates Legacy Converter
+﻿# ExcellentCrates v6 to v7 Converter
 
-Application Windows pour convertir les anciennes configurations YAML du plugin ExcellentCrates vers le format d'objets de la v7.
+A Windows app for converting legacy ExcellentCrates configurations to the v7 object format. This independent project is not affiliated with the ExcellentCrates developers.
 
-Ce projet est indépendant et n'est pas affilié aux développeurs d'ExcellentCrates.
+## Windows app
 
-## Utiliser l'application Windows
+Download `ExcellentCrates-Converter.exe` from [Releases](https://github.com/FurrO2/excellentcrates-converter/releases) and open it. Python is not required.
 
-Téléchargez `ExcellentCrates-Converter.exe` depuis la section [Releases](https://github.com/FurrO2/excellentcrates-converter/releases) et ouvrez-le. Python n'est pas nécessaire.
+1. On the left, choose the complete legacy plugin ZIP archive or its root folder containing `crates/` and `keys/`.
+2. On the right, choose where to create the converted output.
+3. Click **Convert to v7**.
+4. Back up your v7 plugin folder. Copy the contents of the generated `objects/` folder into the `objects/` folder in your ExcellentCrates v7 installation, usually `plugins/ExcellentCrates/objects/`. Keep the subfolder structure.
+5. Do not copy `manifest.json` or `conversion-report.json` into `objects/`. Read the report, restart the server, and check the crates in-game.
 
-1. À gauche, choisissez l'archive ZIP complète de l'ancien plugin ou son dossier racine contenant `crates/` et `keys/`.
-2. À droite, choisissez l'emplacement du dossier converti.
-3. Cliquez sur **Convertir vers v7**.
-4. Copiez le contenu de `objects/` dans le dossier `objects/` de votre installation ExcellentCrates v7, généralement `plugins/ExcellentCrates/objects/`. Gardez la structure des sous-dossiers.
-5. Consultez `conversion-report.json`, redémarrez le serveur et vérifiez les caisses en jeu.
+The output folder must be empty. The app will not overwrite existing files.
 
-Faites une sauvegarde des fichiers v7 avant de les remplacer. Le dossier de destination doit être vide; l'application ne remplace pas les données existantes.
+## Run from source
 
-## Lancer depuis les sources
-
-Prérequis : Python 3.10 ou plus récent.
+Requires Python 3.10 or later.
 
 ```powershell
 py -m pip install -r requirements.txt
 py src\gui.py
 ```
 
-Pour l'utilisation en ligne de commande :
+Command-line usage:
 
 ```powershell
-py src\converter.py "C:\chemin\ExcellentCrates-old.zip"
+py src\converter.py "C:\path\to\ExcellentCrates-v6.zip"
 ```
 
-Pour associer un ancien monde à un identifiant précis :
+Map a legacy world name to a specific v7 world identifier:
 
 ```powershell
-py src\converter.py "C:\chemin\ExcellentCrates-old.zip" "excellentcrates [converted]" --world-map survie5=minecraft:monde1
+py src\converter.py "C:\path\to\ExcellentCrates-v6.zip" "excellentcrates [converted]" --world-map survival=minecraft:world1
 ```
 
-Le binaire Windows est construit automatiquement par GitHub Actions. Un tag `v*` publie l'exécutable dans une nouvelle release.
+GitHub Actions builds the standalone Windows executable. Pushing a `v*` tag creates a release with the executable attached.
 
-## Données prises en charge
+## Converted data
 
-- Caisses, clés, récompenses ITEM et COMMAND, aperçus, poids, effets et cooldowns disponibles dans les fichiers de l'archive.
-- Récompenses ITEM : l'aperçu reprend le premier objet de `ItemsData` dans son ordre d'origine.
-- Blocs assignés : mondes au format `minecraft:<nom>` et coordonnées conservées.
-- Modèles d'hologramme référencés dans l'ancien `config.yml`, copiés dans les caisses avec le décalage vertical augmenté de 0,7.
-- Limites globales et individuelles des récompenses avec leurs quantités.
-- Jalons référencés par les caisses.
-- Animations : les profils hérités sont remplacés par `csgo_animation:default` pour les anciens profils csgo, sinon `simple_roll:default`.
+- Crates, keys, ITEM and COMMAND rewards, previews, weights, effects, and supported cooldown settings.
+- ITEM reward previews use the first item in the original `ItemsData` order.
+- Assigned blocks retain their coordinates and use world keys in the `minecraft:<world>` format.
+- Referenced hologram templates from the legacy `config.yml` are copied into each crate; the vertical offset is increased by 0.7.
+- Global and individual reward limits preserve their amounts.
+- Crate milestones and their reward references.
+- Legacy animation profiles are mapped to v7 profiles: legacy CSGO profiles use `csgo_animation:default`; other profiles use `simple_roll:default`.
 
-Le fichier `conversion-report.json` répertorie les adaptations ou vérifications manuelles nécessaires.
+`conversion-report.json` lists items that need manual review.
 
-## Limites
+## Limitations
 
-Les bases `data.db`, menus personnalisés, langues, configurations globales, logs, coûts en monnaie et certaines permissions avancées ne sont pas migrés. Les structures de jalons et les données NBT d'objets peuvent varier selon la version d'ExcellentCrates, Minecraft ou les extensions installées. Vérifiez les fichiers générés en jeu avant utilisation.
+The converter does not migrate `data.db`, custom menus, languages, global settings, logs, currency costs, or some advanced permissions. Milestone structures and item NBT data may vary by ExcellentCrates, Minecraft, or installed extensions. Review the output in-game before using it on a live server.
 
-## Contributions
+## Contributing
 
-Les rapports de bugs et pull requests sont les bienvenus. Consultez [CONTRIBUTING.md](CONTRIBUTING.md) et anonymisez toute configuration avant de la partager.
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), and anonymize configuration files before sharing them.
 
-## Licence
+## License
 
-Distribué sous licence [MIT](LICENSE).
+Released under the [MIT License](LICENSE).

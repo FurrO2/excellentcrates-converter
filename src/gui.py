@@ -12,13 +12,13 @@ from converter import convert
 class ConverterApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
-        self.title("ExcellentCrates Converter · v7")
+        self.title("ExcellentCrates v6 to v7 Converter")
         self.geometry("920x620")
         self.minsize(800, 560)
         self.configure(bg="#f3f5f9")
         self.source = tk.StringVar()
         self.destination = tk.StringVar()
-        self.status = tk.StringVar(value="Sélectionnez votre archive ZIP ou le dossier ExcellentCrates.")
+        self.status = tk.StringVar(value="Select your ZIP archive or ExcellentCrates folder.")
         self.results: queue.Queue[tuple[bool, str]] = queue.Queue()
         self._style()
         self._build()
@@ -38,8 +38,8 @@ class ConverterApp(tk.Tk):
     def _build(self) -> None:
         outer = ttk.Frame(self, padding=(30, 24, 30, 20))
         outer.pack(fill="both", expand=True)
-        ttk.Label(outer, text="ExcellentCrates Converter", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(outer, text="Convertissez vos anciennes données vers le format v7 en quelques clics.", style="Subtitle.TLabel").pack(anchor="w", pady=(4, 22))
+        ttk.Label(outer, text="ExcellentCrates v6 to v7 Converter", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(outer, text="Convert your legacy data to v7 in just a few clicks.", style="Subtitle.TLabel").pack(anchor="w", pady=(4, 22))
 
         columns = ttk.Frame(outer)
         columns.pack(fill="both", expand=True)
@@ -49,45 +49,45 @@ class ConverterApp(tk.Tk):
 
         left = ttk.Frame(columns, style="Card.TFrame", padding=22)
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 9))
-        ttk.Label(left, text="1 · Anciennes données", style="CardTitle.TLabel").pack(anchor="w")
-        ttk.Label(left, text="Choisissez le ZIP complet du plugin ou son dossier racine contenant crates/ et keys/.", style="Body.TLabel", wraplength=340, justify="left").pack(anchor="w", pady=(7, 17))
-        self.source_box = tk.Label(left, text="Aucune source sélectionnée", bg="#f7f8fc", fg="#667085", font=("Segoe UI", 10), wraplength=330, justify="left", anchor="nw", padx=12, pady=12, height=5, relief="solid", bd=1, highlightthickness=0)
+        ttk.Label(left, text="1 · Legacy data", style="CardTitle.TLabel").pack(anchor="w")
+        ttk.Label(left, text="Choose the complete plugin ZIP or its root folder containing crates/ and keys/.", style="Body.TLabel", wraplength=340, justify="left").pack(anchor="w", pady=(7, 17))
+        self.source_box = tk.Label(left, text="No source selected", bg="#f7f8fc", fg="#667085", font=("Segoe UI", 10), wraplength=330, justify="left", anchor="nw", padx=12, pady=12, height=5, relief="solid", bd=1, highlightthickness=0)
         self.source_box.pack(fill="x")
-        ttk.Button(left, text="Choisir un fichier ZIP…", command=self._choose_zip).pack(fill="x", pady=(12, 7))
-        ttk.Button(left, text="Choisir un dossier…", command=self._choose_folder).pack(fill="x")
+        ttk.Button(left, text="Choose a ZIP file…", command=self._choose_zip).pack(fill="x", pady=(12, 7))
+        ttk.Button(left, text="Choose a folder…", command=self._choose_folder).pack(fill="x")
 
         right = ttk.Frame(columns, style="Card.TFrame", padding=22)
         right.grid(row=0, column=1, sticky="nsew", padx=(9, 0))
-        ttk.Label(right, text="2 · Résultat v7", style="CardTitle.TLabel").pack(anchor="w")
-        ttk.Label(right, text="Le convertisseur crée un nouveau dossier sans écraser de fichiers existants.", style="Body.TLabel", wraplength=340, justify="left").pack(anchor="w", pady=(7, 12))
-        ttk.Label(right, text="Dossier de destination", style="Body.TLabel").pack(anchor="w")
+        ttk.Label(right, text="2 · v7 output", style="CardTitle.TLabel").pack(anchor="w")
+        ttk.Label(right, text="The converter creates a new folder and never overwrites existing files.", style="Body.TLabel", wraplength=340, justify="left").pack(anchor="w", pady=(7, 12))
+        ttk.Label(right, text="Output folder", style="Body.TLabel").pack(anchor="w")
         destination_row = ttk.Frame(right, style="Card.TFrame")
         destination_row.pack(fill="x", pady=(5, 14))
         self.destination_entry = ttk.Entry(destination_row, textvariable=self.destination)
         self.destination_entry.pack(side="left", fill="x", expand=True, ipady=5)
-        ttk.Button(destination_row, text="Parcourir…", command=self._choose_destination).pack(side="left", padx=(7, 0))
+        ttk.Button(destination_row, text="Browse…", command=self._choose_destination).pack(side="left", padx=(7, 0))
 
         ttk.Separator(right).pack(fill="x", pady=(2, 13))
-        ttk.Label(right, text="Où installer le résultat ?", style="CardTitle.TLabel", font=("Segoe UI", 11, "bold")).pack(anchor="w")
-        notice = ("Après la conversion, sauvegardez votre dossier de plugin v7. "
-                  "Copiez le contenu du dossier objects généré dans le dossier objects de votre installation ExcellentCrates v7 "
-                  "(souvent plugins/ExcellentCrates/objects), en conservant la structure des sous-dossiers. "
-                  "Ne copiez pas manifest.json ni conversion-report.json dans objects. Redémarrez le serveur et vérifiez les caisses en jeu.")
+        ttk.Label(right, text="Where do I put the result?", style="CardTitle.TLabel", font=("Segoe UI", 11, "bold")).pack(anchor="w")
+        notice = ("After conversion, back up your v7 plugin folder. "
+                  "Copy the contents of the generated objects folder into the objects folder in your ExcellentCrates v7 installation "
+                  "(usually plugins/ExcellentCrates/objects), keeping the subfolder structure. "
+                  "Do not copy manifest.json or conversion-report.json into objects. Restart the server and check your crates in-game.")
         ttk.Label(right, text=notice, style="Body.TLabel", wraplength=340, justify="left").pack(anchor="w", pady=(7, 0))
 
         footer = ttk.Frame(outer)
         footer.pack(fill="x", pady=(17, 0))
-        self.convert_button = ttk.Button(footer, text="Convertir vers v7", style="Primary.TButton", command=self._start)
+        self.convert_button = ttk.Button(footer, text="Convert to v7", style="Primary.TButton", command=self._start)
         self.convert_button.pack(side="right")
         ttk.Label(footer, textvariable=self.status, style="Subtitle.TLabel", wraplength=520).pack(side="left", fill="x", expand=True, padx=(0, 18))
 
     def _choose_zip(self) -> None:
-        path = filedialog.askopenfilename(title="Choisir l'archive ExcellentCrates", filetypes=[("Archives ZIP", "*.zip"), ("Tous les fichiers", "*.*")])
+        path = filedialog.askopenfilename(title="Choose the ExcellentCrates archive", filetypes=[("ZIP archives", "*.zip"), ("All files", "*.*")])
         if path:
             self._set_source(Path(path))
 
     def _choose_folder(self) -> None:
-        path = filedialog.askdirectory(title="Choisir le dossier ExcellentCrates legacy")
+        path = filedialog.askdirectory(title="Choose the legacy ExcellentCrates folder")
         if path:
             self._set_source(Path(path))
 
@@ -102,7 +102,7 @@ class ConverterApp(tk.Tk):
         self.destination.set(str(default))
 
     def _choose_destination(self) -> None:
-        path = filedialog.askdirectory(title="Choisir le dossier parent du résultat")
+        path = filedialog.askdirectory(title="Choose the output folder's parent directory")
         if path:
             current = Path(self.destination.get()).name or "excellentcrates [converted]"
             self.destination.set(str(Path(path) / current))
@@ -111,26 +111,26 @@ class ConverterApp(tk.Tk):
         source = Path(self.source.get()) if self.source.get() else None
         destination = Path(self.destination.get()) if self.destination.get() else None
         if source is None or not source.exists():
-            messagebox.showerror("Source manquante", "Choisissez un fichier ZIP ou un dossier ExcellentCrates valide.")
+            messagebox.showerror("Missing source", "Choose a valid ZIP archive or ExcellentCrates folder.")
             return
         if destination is None:
-            messagebox.showerror("Destination manquante", "Choisissez le dossier de sortie.")
+            messagebox.showerror("Missing output folder", "Choose an output folder.")
             return
         if destination.exists() and (not destination.is_dir() or any(destination.iterdir())):
-            messagebox.showerror("Dossier déjà utilisé", "Le dossier de destination existe et n'est pas vide. Choisissez un nouveau dossier vide.")
+            messagebox.showerror("Output folder already in use", "The output folder exists and is not empty. Choose a new, empty folder.")
             return
         self.convert_button.configure(state="disabled")
-        self.status.set("Conversion en cours…")
+        self.status.set("Converting…")
         threading.Thread(target=self._convert_worker, args=(source, destination), daemon=True).start()
         self.after(100, self._poll)
 
     def _convert_worker(self, source: Path, destination: Path) -> None:
         try:
             result = convert(source, destination)
-            summary = (f"Conversion terminée : {result['crates_converted']} caisses, "
-                       f"{result['keys_converted']} clés.\n\n"
-                       f"Résultat : {destination}\n\n"
-                       "Consultez conversion-report.json pour les adaptations à vérifier.")
+            summary = (f"Conversion complete: {result['crates_converted']} crates, "
+                       f"{result['keys_converted']} keys.\n\n"
+                       f"Output: {destination}\n\n"
+                       "See conversion-report.json for items that need review.")
             self.results.put((True, summary))
         except Exception as exc:
             self.results.put((False, str(exc)))
@@ -142,11 +142,11 @@ class ConverterApp(tk.Tk):
             self.after(100, self._poll)
             return
         self.convert_button.configure(state="normal")
-        self.status.set("Conversion terminée." if success else "La conversion a rencontré une erreur.")
+        self.status.set("Conversion complete." if success else "The conversion encountered an error.")
         if success:
-            messagebox.showinfo("Conversion terminée", message)
+            messagebox.showinfo("Conversion complete", message)
         else:
-            messagebox.showerror("Conversion impossible", message)
+            messagebox.showerror("Conversion failed", message)
 
 
 if __name__ == "__main__":
