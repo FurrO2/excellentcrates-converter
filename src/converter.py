@@ -65,6 +65,13 @@ def new_item(data: Any, provider: Any = "vanilla") -> dict[str, Any] | None:
     return {"Data": data, "Provider": provider or "vanilla"}
 
 
+def convert_legacy_command(command: Any) -> Any:
+    if not isinstance(command, str):
+        return command
+    # ExcellentCrates v7 uses the separate /cratekey command for key actions.
+    return re.sub(r"^(\s*/?)crate\s+key(?=\s|$)", r"\1cratekey", command, count=1, flags=re.IGNORECASE)
+
+
 def convert_key(old: dict[str, Any]) -> dict[str, Any]:
     item = item_data(old.get("ItemData"))
     legacy_limits = old.get("Limits") or {}
@@ -111,11 +118,14 @@ def convert_reward(old_id: str, old: dict[str, Any], crate_id: str, report: list
         report.append(f"{crate_id}/{old_id}: limit cooldown periods need manual review.")
     if kind == "COMMAND":
         bundle_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{crate_id}/{reward_id}/command_bundle"))
+        commands = old.get("Commands") or []
+        if not isinstance(commands, list):
+            commands = [commands]
         converted["commands"] = {
             "enabled": True,
             "give_mode": "NORMAL",
             "iterations": 1,
-            "bundles": {bundle_id: {"commands": old.get("Commands") or [], "weight": 0.0}},
+            "bundles": {bundle_id: {"commands": [convert_legacy_command(command) for command in commands], "weight": 0.0}},
         }
     elif kind == "ITEM":
         converted["items"] = {"item_list": {}}

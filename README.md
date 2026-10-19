@@ -42,6 +42,7 @@ GitHub Actions builds the standalone Windows executable. Pushing a `v*` tag crea
 - Crates, keys, ITEM and COMMAND rewards, previews, weights, effects, and supported cooldown settings.
 - ITEM reward previews use the first item in the original `ItemsData` order.
 - COMMAND rewards put legacy commands inside the v7 `commands.bundles` structure, with a stable bundle ID and a weight of `0.0`.
+- Legacy key commands starting with `/crate key` are rewritten to `/cratekey`; other `/crate` commands are kept as-is.
 - Assigned blocks retain their coordinates and use world keys in the `minecraft:<world>` format.
 - Referenced hologram templates from the legacy `config.yml` are copied into each crate; the vertical offset is increased by 0.7.
 - Global and individual reward limits preserve their amounts.
