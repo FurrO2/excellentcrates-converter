@@ -1,0 +1,14 @@
+﻿# Generated conversion output may contain server-specific configuration and coordinates.
+excellentcrates \[converted*\]/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
